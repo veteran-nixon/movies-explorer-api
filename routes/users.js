@@ -7,10 +7,10 @@ const {
 
 // возвращает информацию о текущем пользователе (email и имя)
 // GET /users/me
-router.get('/me', getCurrentUser);
+router.get('/users/me', getCurrentUser);
 
 // обновляет информацию текущего пользователя (email и имя)
 // PATCH /users/me
-router.patch('/me', updateUser);
+router.patch('/users/me', updateUser);
 
 module.exports = router;

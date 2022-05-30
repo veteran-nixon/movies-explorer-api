@@ -1,4 +1,4 @@
-const AllErrors = (err, req, res, next) => {
+const AllErrorsHandler = (err, req, res, next) => {
   // если у ошибки нет статуса, выставляем 500
   const { statusCode = 500, message } = err;
 
@@ -12,4 +12,4 @@ const AllErrors = (err, req, res, next) => {
   next();
 };
 
-module.exports = AllErrors;
+module.exports = AllErrorsHandler;

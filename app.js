@@ -6,7 +6,7 @@ const mongoose = require('mongoose');
 
 const routes = require('./routes');
 
-const AllErrors = require('./middlewares/all-errors');
+const AllErrorsHandler = require('./middlewares/all-errors-handler');
 
 const {
   NODE_ENV,
@@ -23,7 +23,7 @@ app.use(express.json());
 
 app.use(routes);
 
-app.use(AllErrors);
+app.use(AllErrorsHandler);
 
 app.listen(PORT, () => {
 // Если всё работает, консоль покажет, какой порт приложение слушает

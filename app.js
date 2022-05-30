@@ -6,6 +6,11 @@ const mongoose = require('mongoose');
 
 const { errors } = require('celebrate');
 
+const {
+  errorLogger,
+  requestLogger,
+} = require('./middlewares/logger');
+
 const routes = require('./routes');
 
 const AllErrorsHandler = require('./middlewares/all-errors-handler');
@@ -23,7 +28,13 @@ const app = express();
 
 app.use(express.json());
 
+// логгер запросов
+app.use(requestLogger);
+
 app.use(routes);
+
+// логгер ошибок
+app.use(errorLogger);
 
 app.use(errors());
 

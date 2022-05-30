@@ -1,5 +1,7 @@
 const express = require('express');
 
+const helmet = require('helmet');
+
 require('dotenv').config();
 
 const mongoose = require('mongoose');
@@ -25,6 +27,8 @@ const {
 mongoose.connect(NODE_ENV === 'production' ? serverdb : 'mongodb://localhost:27017/bitfilmsdb');
 
 const app = express();
+
+app.use(helmet());
 
 app.use(express.json());
 

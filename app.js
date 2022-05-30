@@ -8,6 +8,10 @@ const mongoose = require('mongoose');
 
 const { errors } = require('celebrate');
 
+const corsAllow = require('./middlewares/cors');
+
+const limiter = require('./middlewares/rateLimiter');
+
 const {
   errorLogger,
   requestLogger,
@@ -28,12 +32,16 @@ mongoose.connect(NODE_ENV === 'production' ? serverdb : 'mongodb://localhost:270
 
 const app = express();
 
+app.use(corsAllow);
+
 app.use(helmet());
 
 app.use(express.json());
 
 // логгер запросов
 app.use(requestLogger);
+
+app.use(limiter);
 
 app.use(routes);
 

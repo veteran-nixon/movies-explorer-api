@@ -1,6 +1,11 @@
 const router = require('express').Router();
 
 const {
+  validateMovieId,
+  validateMovie,
+} = require('../middlewares/validator');
+
+const {
   getMovie,
   createMovie,
   deleteMovie,
@@ -12,10 +17,10 @@ router.get('/movies', getMovie);
 
 // создаёт фильм с переданными в теле данными схемы Movie
 // POST /movies
-router.post('/movies', createMovie);
+router.post('/movies', validateMovie, createMovie);
 
 // удаляет сохранённый фильм по id
 // DELETE /movies/_id
-router.delete('/movies/:movieId', deleteMovie);
+router.delete('/movies/:movieId', validateMovieId, deleteMovie);
 
 module.exports = router;

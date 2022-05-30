@@ -9,13 +9,18 @@ const auth = require('../middlewares/auth');
 const NotFoundError = require('../errors/not-found-error');
 
 const {
+  validateSignUp,
+  validateSignIn,
+} = require('../middlewares/validator');
+
+const {
   login,
   createUser,
 } = require('../controllers/users');
 
-router.post('/signin', login);
+router.post('/signin', validateSignIn, login);
 
-router.post('/signup', createUser);
+router.post('/signup', validateSignUp, createUser);
 
 router.use(auth);
 

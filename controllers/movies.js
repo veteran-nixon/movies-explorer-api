@@ -54,13 +54,14 @@ module.exports.createMovie = (req, res, next) => {
 
 module.exports.deleteMovie = (req, res, next) => {
   Movie.findById(req.params.movieId)
+    // eslint-disable-next-line consistent-return
     .then((movie) => {
-      if (!movie.owner.equals(req.user._id)) {
-        next(new ForbiddenError('Вы не можете удалить чужой фильм'));
-      } else if (!movie) {
+      if (!movie) {
         next(new NotFoundError('Карточка с таким _id не найдена'));
+      } else if (!movie.owner.equals(req.user._id)) {
+        next(new ForbiddenError('Вы не можете удалить чужой фильм'));
       } else {
-        movie.remove()
+        return movie.remove()
           .then(() => { res.send({ message: 'Фильм удален' }); });
       }
     })

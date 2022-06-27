@@ -14,30 +14,6 @@ const UnauthorizedError = require('../errors/unauthorized-error');
 
 const { NODE_ENV, JWT_SECRET } = process.env;
 
-module.exports.getUsers = (req, res, next) => {
-  User.find({})
-    .then((users) => res.send(users))
-    .catch(next);
-};
-
-module.exports.getUser = (req, res, next) => {
-  User.findById(req.params.userId)
-    .then((user) => {
-      if (user) {
-        res.send(user);
-      } else {
-        next(new NotFoundError('Пользователь по указанному _id не найден'));
-      }
-    })
-    .catch((err) => {
-      if (err.name === 'CastError') {
-        next(new BadRequestError('Передан некорректный id пользователя'));
-      } else {
-        next(err);
-      }
-    });
-};
-
 module.exports.createUser = (req, res, next) => {
   const {
     name, email, password,
@@ -50,7 +26,7 @@ module.exports.createUser = (req, res, next) => {
   User.findOne({ email })
     .then((user) => {
       if (user) {
-        next(new ConflictError(`Пользователь почтой ${email} уже существует`));
+        next(new ConflictError('Пользователь c таким email уже существует'));
       }
       return bcrypt.hash(password, 10);
     })
@@ -59,10 +35,18 @@ module.exports.createUser = (req, res, next) => {
       email,
       password: hash,
     }))
-    .then(() => res.send({
-      name,
-      email,
-    }))
+    .then((user) => {
+      const token = jwt.sign(
+        { _id: user._id },
+        `${NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret'}`,
+        { expiresIn: 3600 },
+      );
+      res.send({
+        name,
+        email,
+        token,
+      });
+    })
     .catch((err) => {
       if (err.name === 'MongoError' && err.code === 11000) {
         next(new ConflictError('Пользователь с таким email уже существует'));
@@ -80,7 +64,9 @@ module.exports.updateUser = (req, res, next) => {
   User.findByIdAndUpdate(req.user._id, { name, email }, { new: true, runValidators: true })
     .then((user) => res.send(user))
     .catch((err) => {
-      if (err.name === 'ValidationError') {
+      if (err.code === 11000) {
+        next(new ConflictError('Пользователь с таким email уже существует'));
+      } else if (err.name === 'ValidationError') {
         next(new BadRequestError('Переданы некорректные данные при обновлении профиля'));
       } else {
         next(err);
@@ -103,10 +89,10 @@ module.exports.login = (req, res, next) => {
         { expiresIn: 3600 },
       );
 
-      res.cookie('jwt', token, {
-        maxAge: 3600000,
-        httpOnly: true,
-      }).send({ token }).end();
+      res.send({
+        email,
+        token,
+      });
     })
     .catch((err) => {
       if (err) {
